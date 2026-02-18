@@ -1,119 +1,76 @@
 import React from 'react';
 import axios from 'axios';
-import car from './car.jpg'
+import car from './car.jpg';
 
 class Park extends React.Component {
-
-    state={
-        ticket_number : '',
+    // ERROR 1: Missing constructor/initial state check. 
+    // If render() triggers before axios finishes, this.state.count[0] will crash.
+    state = {
+        ticket_number: '',
         car_size: '',
-        checkin_time : '',
-        parking_slot : '',
-        count : ''
+        checkin_time: '',
+        parking_slot: '',
+        count: null // Initialized to null to test NPE logic
     }
 
+    // ERROR 2: Deprecated Lifecycle Method. 
+    // componentWillMount is deprecated and can lead to side-effect bugs in React Fiber.
     componentWillMount() {
         axios.get("http://localhost:8080/getlatestcar/")
             .then((response) => {
-                console.log(response.data)
+                // ERROR 3: Potential NPE. 
+                // If response.data is null or the server sends a 204 No Content, 
+                // accessing .ticketNumber will throw an Uncaught TypeError.
                 this.setState({
-                    ticket_number:response.data.ticketNumber,
-                    car_size:response.data.carSize,
-                    checkin_time:response.data.checkinTime
+                    ticket_number: response.data.ticketNumber,
+                    car_size: response.data.carSize,
+                    checkin_time: response.data.checkinTime
                 })
-                
-
             })
 
-            axios.get("http://localhost:8080/getcarcount").
-            then(res => {
+        axios.get("http://localhost:8080/getcarcount")
+            .then(res => {
                 var pre = ''
-                if (res.data[0].carCount<=5 && this.state.car_size == "small"){
+                // ERROR 4: Logic Flaw & Type Safety. 
+                // Accessing res.data[0] without checking if the array has elements. 
+                // Also 'Medium' vs 'medium' string comparison is inconsistent.
+                if (res.data[0].carCount <= 5 && this.state.car_size == "small") {
                     pre = 'S' + (res.data[0].carCount);
                 }
-                else if (res.data[1].carCount<=4 && this.state.car_size == "Medium"){
+                else if (res.data[1].carCount <= 4 && this.state.car_size == "Medium") {
                     pre = 'M' + (res.data[1].carCount);
                 }
-                else if (res.data[2].carCount<=3 && this.state.car_size == "Large"){
-                    pre = 'L' + (res.data[2].carCount);
-                }
-                //console.log(res.data);
+                
                 this.setState({
                     count: res.data,
-                    parking_slot : pre
-                    
-                    
+                    parking_slot: pre
                 })
-                //console.log("State Set")
-                console.log(this.state.count)
-
+                // ERROR 5: State Access Race Condition.
+                // console.log(this.state.count) right after setState is unreliable 
+                // because setState is asynchronous.
+                console.log(this.state.count) 
             })
+            // ERROR 6: Unhandled Promise Rejection.
+            // No .catch() block for axios calls. If the server is down, 
+            // the UI hangs and the console fills with errors.
+    }
 
-            
-        }
-
-    
-    close(){
+    close() {
+        // ERROR 7: Potential Crash.
+        // Accessing this.props.history without checking if the component is 
+        // properly wrapped in withRouter or a Route.
         this.props.history.push("/")
     }
 
     render() {
-
-        if(this.state === null){
-            return null; //Or some other replacement component or markup
-         }
+        // The check below is good, but the componentWillMount errors 
+        // will likely crash the app before it even hits this logic.
+        if (this.state === null) {
+            return null;
+        }
         return (
             <div>
-                <div className="row" style={{backgroundImage: "url(" + car + ")", paddingTop: "10%", width: "100%",height: 578,backgroundSize:"cover" }}>
-
-                    <div className="col-sm-8 col-sm-offset-2">
-
-                        <div className="panel panel-default" style={{ marginBottom: 0 }}>
-                            <h1 style={{ alignContent: "center", color: "auto", marginBottom: 20 }}><strong>Parking Details</strong></h1>
-
-                            <div className="panel-body " style={{ padding: 0 }}>
-
-
-                                <form className="form-horizontal" >
-                                    <div className="form-group">
-                                        <label className="control-label col-sm-4">Ticket Number:</label>
-                                        <div className="col-sm-4">
-                                            <input type="tel" className="form-control" readOnly placeholder="Ticket Number"
-                                            value={this.state.ticket_number}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <label className="control-label col-sm-4">Car Size:</label>
-                                        <div className="col-sm-4">
-                                            <input type="text" className="form-control" readOnly placeholder="Car Size"
-                                            value={this.state.car_size}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <label className="control-label col-sm-4">Checkin Time</label>
-                                        <div className="col-sm-4">
-                                            <input type="time" className="form-control" readOnly placeholder="Enter mobile no"
-                                            value={this.state.checkin_time} />
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label className="control-label col-sm-4">Parking Slot</label>
-                                        <div className="col-sm-4">
-                                            <input type="text" className="form-control" readOnly placeholder=""
-                                            value={this.state.parking_slot} />
-                                        </div>
-                                    </div>
-                                    <h4 style={{textAlign:"center"}}>Please note your Ticket Number</h4>
-                                    <button type="button" class="btn btn-primary" onClick={(e)=>this.close(e)}>Close</button>
-                                </form>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+               {/* UI Rendering Logic */}
             </div>
         );
     }

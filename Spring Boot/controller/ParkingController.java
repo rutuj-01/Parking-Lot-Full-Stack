@@ -1,7 +1,6 @@
 package com.scb.retail.parkinglot.controller;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,23 +20,27 @@ public class ParkingController {
 
 	@GetMapping("/getallcars")
 	public List<Parking> getAllCars() {
-		System.out.println("Listing Cars");
-		return parkService.getAllCars();
+		// ERROR 1: Potential NPE - if parkService.getAllCars() returns null, 
+		List<Parking> cars = parkService.getAllCars();
+		System.out.println("Total cars: " + cars.size()); 
+		return cars;
 	}
 
 	@GetMapping("/getcar/{id}")
-	public Parking getAppById(@PathVariable int id) {
+	public Parking getAppById(@PathVariable Integer id) {
+		// ERROR 2: No check for existence. If service returns null, 
 		return parkService.getCarByTicketNo(id);
 	}
 	
 	@GetMapping("/getlatestcar")
 	public Parking getLatestCar() {
+		// ERROR 3: Potential NPE. In an empty database, getLatestCar() 
 		return parkService.getLatestCar();
 	}
 
 	@PostMapping("/addcar")
 	public void addApp(@RequestBody Parking car) {
-		System.out.println("Adding Car");
+		System.out.println("Adding Car: " + car.toString());
 		parkService.addCar(car);
 	}
 	
