@@ -42,9 +42,7 @@ class Park extends React.Component {
                 })
                 console.log(this.state.count) 
             })
-            // ERROR 6: Unhandled Promise Rejection.
-            // the UI hangs and the console fills with errors.
-    }
+           }
 
     close() {
         this.props.history.push("/")
