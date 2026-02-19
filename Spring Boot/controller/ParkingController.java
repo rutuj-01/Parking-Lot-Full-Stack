@@ -1,7 +1,6 @@
 package com.scb.retail.parkinglot.controller;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,12 +20,13 @@ public class ParkingController {
 
 	@GetMapping("/getallcars")
 	public List<Parking> getAllCars() {
-		System.out.println("Listing Cars");
-		return parkService.getAllCars();
+		List<Parking> cars = parkService.getAllCars();
+		System.out.println("Total cars: " + cars.size()); 
+		return cars;
 	}
 
 	@GetMapping("/getcar/{id}")
-	public Parking getAppById(@PathVariable int id) {
+	public Parking getAppById(@PathVariable Integer id) {
 		return parkService.getCarByTicketNo(id);
 	}
 	
@@ -37,7 +37,7 @@ public class ParkingController {
 
 	@PostMapping("/addcar")
 	public void addApp(@RequestBody Parking car) {
-		System.out.println("Adding Car");
+		System.out.println("Adding Car: " + car.size());
 		parkService.addCar(car);
 	}
 	
