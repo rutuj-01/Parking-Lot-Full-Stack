@@ -20,7 +20,6 @@ public class ParkingController {
 
 	@GetMapping("/getallcars")
 	public List<Parking> getAllCars() {
-		// ERROR 1: Potential NPE - if parkService.getAllCars() returns null, 
 		List<Parking> cars = parkService.getAllCars();
 		System.out.println("Total cars: " + cars.size()); 
 		return cars;
@@ -28,19 +27,17 @@ public class ParkingController {
 
 	@GetMapping("/getcar/{id}")
 	public Parking getAppById(@PathVariable Integer id) {
-		// ERROR 2: No check for existence. If service returns null, 
 		return parkService.getCarByTicketNo(id);
 	}
 	
 	@GetMapping("/getlatestcar")
 	public Parking getLatestCar() {
-		// ERROR 3: Potential NPE. In an empty database, getLatestCar() 
 		return parkService.getLatestCar();
 	}
 
 	@PostMapping("/addcar")
 	public void addApp(@RequestBody Parking car) {
-		System.out.println("Adding Car: " + car.toString());
+		System.out.println("Adding Car: " + car.size());
 		parkService.addCar(car);
 	}
 	
